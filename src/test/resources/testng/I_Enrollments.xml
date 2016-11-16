@@ -1,0 +1,12 @@
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="SuiteName" parallel="methods">
+	<listeners>
+		<listener class-name="com.saucelabs.testng.SauceOnDemandTestListener"></listener>
+		<listener class-name="app.util.ReportLisener"></listener>
+	</listeners>
+	<test name="TestName">
+		<classes>
+			<class name="app.ios.tests.IOSEnrollmentScripts"/>
+		</classes>
+	</test>
+</suite>
