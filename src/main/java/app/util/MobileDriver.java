@@ -86,8 +86,6 @@ public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDema
 	 */
 	public MobileDriver(String testName, String testArea, Boolean isLocal, Boolean isAndroid) {
 		
-		System.out.println(Variables.environmentProperties.getProperty(EnvironmentProperties.ANDROID_APP_VERSION));
-
 		// Set variables
 		this.testName = testName;
 		this.testArea = testArea;
