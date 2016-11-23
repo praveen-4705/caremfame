@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.util.Properties;
+
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.ITestContext;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
@@ -93,6 +95,15 @@ public class BaseTest {
 	@AfterMethod(alwaysRun=true)
 	public void tearDown(ITestResult result, Method m) throws IOException {
 		
+		if(!localFlag) {
+			RemoteWebDriver driver = (RemoteWebDriver) d.getDriver();
+			String sauceSessionId = driver.getSessionId().toString();
+			
+			// if test passed, add passed information to job, else add failed
+			if (result.isSuccess()) d.getSauceClient().jobPassed(sauceSessionId); 
+			else d.getSauceClient().jobFailed(sauceSessionId);
+		}
+		
 		if (localFlag) {
 			// Take screenshot
 			Screenshot.GetScreenshot("./test-output/", result.getName(), d.getDriver());
@@ -102,6 +113,6 @@ public class BaseTest {
 //		EmailTestReport.sendTestReport();
 		
 		// Close the driver
-		d.getDriver().closeApp();
+		d.getDriver().quit();
 	}
 }

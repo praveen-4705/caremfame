@@ -12,13 +12,19 @@ import org.testng.annotations.BeforeMethod;
 
 public class IOSEnrollmentScripts extends BaseTest {
 
-	@BeforeMethod
+	@BeforeMethod(alwaysRun=true)
 	public void initializeDriver(ITestContext context, Method m) {
-		super.initializeDriver(context, m, true, false);
+		super.initializeDriver(context, m, false, false);
 	}
 
 	@Test
 	public void iOS_seekerEnrollment() {
+		// Open Care.com app
+		HomePage homePage = new HomePage(d);
+	}
+	
+	@Test
+	public void iOS_seekerEnrollment_1() {
 		// Open Care.com app
 		HomePage homePage = new HomePage(d);
 	}

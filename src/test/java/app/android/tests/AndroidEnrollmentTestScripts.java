@@ -2,6 +2,7 @@ package app.android.tests;
 
 import org.testng.annotations.Test;
 
+import app.screens.EnrollmentPage;
 import app.screens.HomePage;
 import app.tests.BaseTest;
 import org.testng.annotations.BeforeMethod;
@@ -17,10 +18,16 @@ public class AndroidEnrollmentTestScripts extends BaseTest {
 	}
 
 	@Test
-	public void android_seekerEnrollment() throws InterruptedException {
+	public void Android_BabySitterEnrollment() throws InterruptedException {
 		// Open Care.com app
 		HomePage homePage = new HomePage(d);
 		// Select environment
 		homePage.selectStack();
+		// Select role
+		homePage.selectRole("provider");
+		// Select type Of care
+		EnrollmentPage enrollmentPage = homePage.selectTypeOfCare("Babysitter");
+		// Complete Enrollment
+		enrollmentPage.completeEnrollment("provider");
 	}
 }
