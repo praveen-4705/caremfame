@@ -3,9 +3,16 @@ package app.util;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
+
+import com.saucelabs.common.SauceOnDemandAuthentication;
+import com.saucelabs.common.SauceOnDemandSessionIdProvider;
+import com.saucelabs.saucerest.SauceREST;
+import com.saucelabs.testng.SauceOnDemandAuthenticationProvider;
 
 import app.variables.EnvironmentProperties;
 import app.variables.Variables;
@@ -21,7 +28,7 @@ import io.appium.java_client.remote.MobileCapabilityType;
  *
  */
 
-public class MobileDriver {
+public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDemandAuthenticationProvider {
 
 	private AppiumDriver<MobileElement> driver;
 
@@ -31,16 +38,33 @@ public class MobileDriver {
 	/** Name of the test defined in the TestNG file. */
 	private String testArea;
 	
+	/** Saucelabs Session ID of the job. Unique for each job. */
+	private ThreadLocal<String> sessionId = new ThreadLocal<String>();
+	
 	/** Environment being tested; either defined in Variables file or Jenkins.	 */
 	private String environment;
 	
-	/** */
-	private Properties environmentProperties;
-
-	/**
-	 * App capabilities being used. For list of capabilities available,
+	/** Browser capabilities being used. For list of capabilities available, 
 	 */
 	private DesiredCapabilities capabilities = new DesiredCapabilities();
+	
+	/** Saucelabs Authenticator. Uses Saucelabs Username and API Key. */
+	private SauceOnDemandAuthentication sauceAuth;
+    
+	/** Saucelabs REST Client. Uses Saucelabs Username and API Key. */
+	private SauceREST sauceClient;
+	
+	/** Saucelabs username being used to run the job; either defined in Variables file or Jenkins. */
+	private String sauceUsername;
+	
+	/** Saucelabs API Key being used to run the job; either defined in Variables file or Jenkins. */
+	private String sauceAccessKey;
+	
+	/** List of tags getting uploaded to Saucelabs at the end of the test. */
+	private ArrayList<String> tags = new ArrayList<String>();
+	
+	/** */
+	private Properties environmentProperties;
 
 	/**
 	 * 
@@ -97,7 +121,56 @@ public class MobileDriver {
 			}
 		} else {
 			
-			// TO-DO : SauceLabs integration
+			// Set user info for Saucelabs
+			if (System.getenv("SAUCE_USER_NAME") == null) sauceUsername = Variables.sauceUsername;
+		   	else sauceUsername = System.getenv("SAUCE_USER_NAME");
+			    	
+		 	if (System.getenv("SAUCE_API_KEY") == null) sauceAccessKey = Variables.sauceAccessKey;
+		 	else sauceAccessKey = System.getenv("SAUCE_API_KEY");
+					
+		 	// Create Saucelabs authenticator and REST client
+		 	this.sauceAuth 	= new SauceOnDemandAuthentication(sauceUsername, sauceAccessKey);
+	    	this.sauceClient = new SauceREST(sauceUsername, sauceAccessKey);
+	    	
+	    	capabilities.setCapability("platformName", "iOS");
+	        capabilities.setCapability("deviceName", "iPhone 6");
+	        capabilities.setCapability("platformVersion", "9.2");
+//	        capabilities.setCapability("app", "https://s3-us-west-2.amazonaws.com/onthecheck/Care.app.zip");
+	        capabilities.setCapability("app", "sauce-storage:Care.zip");
+	        capabilities.setCapability("browserName", "");
+	        capabilities.setCapability("deviceOrientation", "portrait");
+	        capabilities.setCapability("appiumVersion", "1.5.3");
+	        
+	    	// Add the environment tag
+	    	tags.add(this.environment);
+	    	// Add the device type
+//	    	tags.add(this.deviceType);
+	    	// Add the test area
+	    	tags.add(this.testArea);
+	    	
+	    	// Set the test name, and the tags
+			capabilities.setCapability("name", testName);
+			capabilities.setCapability("tags", tags);
+	        
+			try {
+				
+				// Set the driver
+				driver = new IOSDriver<MobileElement>(
+						new URL("http://" + this.getAuthentication().getUsername() + ":"
+								+ this.getAuthentication().getAccessKey() + "@ondemand.saucelabs.com:80/wd/hub"),
+						capabilities);
+				
+			} catch (MalformedURLException e) {
+				
+				e.printStackTrace();
+			}
+			
+			// Get the session ID from Saucelabs, and set the local value
+			setSessionId(((RemoteWebDriver) getDriver()).getSessionId().toString());	
+			
+			// Print the Session ID
+	    	String message = String.format("SauceOnDemandSessionID=%1$s job-name=%2$s", ((RemoteWebDriver) getDriver()).getSessionId().toString(), this.getTestName());
+	    	System.out.println(message);
 		}
 	}
 	
@@ -217,5 +290,50 @@ public class MobileDriver {
 	public void setEnvironmentProperties(Properties environmentProperties) {
 		this.environmentProperties = environmentProperties;
 	}
+	
+	public String getSauceUsername() {
+		return sauceUsername;
+	}
 
+	public void setSauceUsername(String sauceUsername) {
+		this.sauceUsername = sauceUsername;
+	}
+
+	public String getSauceAccessKey() {
+		return sauceAccessKey;
+	}
+
+	public void setSauceAccessKey(String sauceAccessKey) {
+		this.sauceAccessKey = sauceAccessKey;
+	}
+
+	@Override
+	public SauceOnDemandAuthentication getAuthentication() {
+		return sauceAuth;
+	}
+
+	public void setAuthentication(SauceOnDemandAuthentication sauceAuth) {
+		this.sauceAuth = sauceAuth;
+	}
+	
+	public SauceREST getSauceClient() {
+		return sauceClient;
+	}
+
+	public void setSauceClient(SauceREST sauceClient) {
+		this.sauceClient = sauceClient;
+	}
+
+	@Override
+	public String getSessionId() {
+		return sessionId.get();
+	}
+	
+	public void setSessionId(String sessionId) {
+		this.sessionId.set(sessionId);
+	}
+
+	public void setSessionId(ThreadLocal<String> sessionId) {
+		this.sessionId = sessionId;
+	}
 }

@@ -3,7 +3,9 @@ package app.screens;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
@@ -236,4 +238,43 @@ public class BasePage {
 		Properties properties = Variables.environmentProperties;
 		return properties;
 	}
+	
+	/**
+	 * Generate random alphabetical string
+	 * @param length
+	 * @return	Return string
+	 */
+	public String randomAlphabeticString(int length){
+		
+		// Generate string
+		String randomString = RandomStringUtils.randomAlphabetic(length);
+		
+		// Return string
+		return randomString;
+	}
+	
+	/**
+	 * Generate random numeric string
+	 * @param length
+	 * @return	Return string
+	 */
+	public String randomNumericString(int length){
+		
+		// Generate string
+		String randomString = RandomStringUtils.randomNumeric(length);
+		
+		// Return string
+		return randomString;
+	}
+	
+    /**
+     * Generate an email based on current UNIX timestamp
+     * @return	Returns the generated email
+     */
+    public String generateEmail(String baseString) {
+    	//Create Random object
+    	Random r = new Random();
+    	//Returns randomly generated email id
+    	return baseString + mDriver.getEnvironment().toLowerCase() + Integer.toString(r.nextInt(32000)) + Integer.toString(r.nextInt(999)) + "@care.com";
+    }
 }
