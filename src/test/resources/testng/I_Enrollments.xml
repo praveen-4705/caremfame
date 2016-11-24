@@ -1,5 +1,5 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Enrollment" parallel="tests">
+<suite name="Enrollment" parallel="methods">
 	<listeners>
 		<listener class-name="com.saucelabs.testng.SauceOnDemandTestListener"></listener>
 		<listener class-name="app.util.ReportLisener"></listener>
