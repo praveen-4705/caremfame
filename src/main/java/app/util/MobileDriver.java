@@ -14,7 +14,6 @@ import com.saucelabs.common.SauceOnDemandSessionIdProvider;
 import com.saucelabs.saucerest.SauceREST;
 import com.saucelabs.testng.SauceOnDemandAuthenticationProvider;
 
-import app.variables.EnvironmentProperties;
 import app.variables.Variables;
 import io.appium.java_client.AppiumDriver;
 import io.appium.java_client.MobileElement;
@@ -63,8 +62,14 @@ public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDema
 	/** List of tags getting uploaded to Saucelabs at the end of the test. */
 	private ArrayList<String> tags = new ArrayList<String>();
 	
-	/** */
+	/** Will contain all environment related details*/
 	private Properties environmentProperties;
+	
+	/** Will be used to store the IOS simulator name */
+	private String iOSDeviceName;
+	
+	/** Will be used to store the IOS simulator platform version name */
+	private String iOSPlatformVersion;
 
 	/**
 	 * 
@@ -125,19 +130,25 @@ public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDema
 			    	
 		 	if (System.getenv("SAUCE_API_KEY") == null) sauceAccessKey = Variables.sauceAccessKey;
 		 	else sauceAccessKey = System.getenv("SAUCE_API_KEY");
+		 	
+		 	if (System.getenv("IOS Device Name") ==  null) iOSDeviceName = Variables.iOS_deviceName;
+		 	else iOSDeviceName = System.getenv("IOS Device Name");
+		 	
+		 	if (System.getenv("IOS Device Platform Version") ==  null) iOSPlatformVersion = Variables.iOS_Vesion;
+		 	else iOSPlatformVersion = System.getenv("IOS Device Platform Version");
 					
 		 	// Create Saucelabs authenticator and REST client
 		 	this.sauceAuth 	= new SauceOnDemandAuthentication(sauceUsername, sauceAccessKey);
 	    	this.sauceClient = new SauceREST(sauceUsername, sauceAccessKey);
 	    	
 	    	capabilities.setCapability("platformName", "iOS");
-	        capabilities.setCapability("deviceName", "iPhone 6");
-	        capabilities.setCapability("platformVersion", "9.2");
-//	        capabilities.setCapability("app", "https://s3-us-west-2.amazonaws.com/onthecheck/Care.app.zip");
+	        capabilities.setCapability("deviceName", iOSDeviceName);
+	        capabilities.setCapability("platformVersion", iOSPlatformVersion);
 	        capabilities.setCapability("app", "sauce-storage:Care.zip");
 	        capabilities.setCapability("browserName", "");
 	        capabilities.setCapability("deviceOrientation", "portrait");
 	        capabilities.setCapability("appiumVersion", "1.5.3");
+	        capabilities.setCapability("platform", "OS X 10.11");
 	        
 	    	// Add the environment tag
 	    	tags.add(this.environment);
@@ -333,5 +344,37 @@ public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDema
 
 	public void setSessionId(ThreadLocal<String> sessionId) {
 		this.sessionId = sessionId;
+	}
+
+	public SauceOnDemandAuthentication getSauceAuth() {
+		return sauceAuth;
+	}
+
+	public void setSauceAuth(SauceOnDemandAuthentication sauceAuth) {
+		this.sauceAuth = sauceAuth;
+	}
+
+	public ArrayList<String> getTags() {
+		return tags;
+	}
+
+	public void setTags(ArrayList<String> tags) {
+		this.tags = tags;
+	}
+
+	public String getiOSDeviceName() {
+		return iOSDeviceName;
+	}
+
+	public void setiOSDeviceName(String iOSDeviceName) {
+		this.iOSDeviceName = iOSDeviceName;
+	}
+
+	public String getiOSPlatformVersion() {
+		return iOSPlatformVersion;
+	}
+
+	public void setiOSPlatformVersion(String iOSPlatformVersion) {
+		this.iOSPlatformVersion = iOSPlatformVersion;
 	}
 }

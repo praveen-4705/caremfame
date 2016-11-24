@@ -28,7 +28,7 @@ public class Variables {
 	public static final String defaultServer	= "127.0.0.1";
 	public static final String defaultPort		= "4723";
 	public static final String environmentName	= "uat2";
-	public static final String iOS_Vesion		= "9.1";
+	public static final String iOS_Vesion		= "9.3";
 	public static final String iOS_deviceName	= "iPhone 6s Plus";
 	
 	public static Properties environmentProperties	= new Properties();
