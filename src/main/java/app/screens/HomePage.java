@@ -46,6 +46,9 @@ public class HomePage extends BasePage {
 	 */
 	public void selectRole(String roleName) {
 		
+		// Click on SingUp With Email
+		click(Variables.homescreen_btn_SignUpEmail);
+		
 		// If role is Provider than tap on Find a Care Job other wise tap on Caregiver 
 		if (roleName.equalsIgnoreCase("provider")) {
 			click(Variables.homescreen_link_Provider);

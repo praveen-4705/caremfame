@@ -2,6 +2,7 @@ package app.ios.tests;
 
 import org.testng.annotations.Test;
 
+import app.screens.EnrollmentPage;
 import app.screens.HomePage;
 import app.tests.BaseTest;
 
@@ -19,12 +20,6 @@ public class IOSEnrollmentScripts extends BaseTest {
 
 	@Test
 	public void iOS_seekerEnrollment() {
-		// Open Care.com app
-		HomePage homePage = new HomePage(d);
-	}
-	
-	@Test
-	public void iOS_seekerEnrollment_1() {
 		// Open Care.com app
 		HomePage homePage = new HomePage(d);
 	}

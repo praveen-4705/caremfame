@@ -70,6 +70,12 @@ public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDema
 	
 	/** Will be used to store the IOS simulator platform version name */
 	private String iOSPlatformVersion;
+	
+	/** Will be used to store the Android simulator name */
+	private String androidDeviceName;
+	
+	/** Will be used to store the Android simulator platform version name */
+	private String androidPlatformVersion;
 
 	/**
 	 * 
@@ -110,96 +116,109 @@ public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDema
 	 * @param isAndroid
 	 */
 	private void createMobileDriver(Boolean isLocal, Boolean isAndroid) {
-
-		// If isLocal is true than create driver for local machine
-		if (isLocal) {
-			
-			// If isAndroid is true than create Android Driver other wise create iOS Driver
-			if (isAndroid) {
-				
-				driver = createAndroidDriver();
-			}else {
-				
-				driver = createiOSDriver();
-			}
+		
+		// If isAndroid is true than create Android Driver other wise create iOS Driver
+		if (isAndroid) {
+			driver = createAndroidDriver(isLocal);
 		} else {
-			
-			// Set user info for Saucelabs
-			if (System.getenv("SAUCE_USER_NAME") == null) sauceUsername = Variables.sauceUsername;
-		   	else sauceUsername = System.getenv("SAUCE_USER_NAME");
-			    	
-		 	if (System.getenv("SAUCE_API_KEY") == null) sauceAccessKey = Variables.sauceAccessKey;
-		 	else sauceAccessKey = System.getenv("SAUCE_API_KEY");
-		 	
-		 	if (System.getenv("IOS Device Name") ==  null) iOSDeviceName = Variables.iOS_deviceName;
-		 	else iOSDeviceName = System.getenv("IOS Device Name");
-		 	
-		 	if (System.getenv("IOS Device Platform Version") ==  null) iOSPlatformVersion = Variables.iOS_Vesion;
-		 	else iOSPlatformVersion = System.getenv("IOS Device Platform Version");
-					
-		 	// Create Saucelabs authenticator and REST client
-		 	this.sauceAuth 	= new SauceOnDemandAuthentication(sauceUsername, sauceAccessKey);
-	    	this.sauceClient = new SauceREST(sauceUsername, sauceAccessKey);
-	    	
-	    	capabilities.setCapability("platformName", "iOS");
-	        capabilities.setCapability("deviceName", iOSDeviceName);
-	        capabilities.setCapability("platformVersion", iOSPlatformVersion);
-	        capabilities.setCapability("app", "sauce-storage:Care.zip");
-	        capabilities.setCapability("browserName", "");
-	        capabilities.setCapability("deviceOrientation", "portrait");
-	        capabilities.setCapability("appiumVersion", "1.5.3");
-	        capabilities.setCapability("platform", "OS X 10.11");
-	        
-	    	// Add the environment tag
-	    	tags.add(this.environment);
-	    	// Add the device type
-//	    	tags.add(this.deviceType);
-	    	// Add the test area
-	    	tags.add(this.testArea);
-	    	
-	    	// Set the test name, and the tags
-			capabilities.setCapability("name", testName);
-			capabilities.setCapability("tags", tags);
-	        
-			try {
-				
-				// Set the driver
-				driver = new IOSDriver<MobileElement>(
-						new URL("http://" + this.getAuthentication().getUsername() + ":"
-								+ this.getAuthentication().getAccessKey() + "@ondemand.saucelabs.com:80/wd/hub"),
-						capabilities);
-				
-			} catch (MalformedURLException e) {
-				
-				e.printStackTrace();
-			}
-			
-			// Get the session ID from Saucelabs, and set the local value
-			setSessionId(((RemoteWebDriver) getDriver()).getSessionId().toString());	
-			
-			// Print the Session ID
-	    	String message = String.format("SauceOnDemandSessionID=%1$s job-name=%2$s", ((RemoteWebDriver) getDriver()).getSessionId().toString(), this.getTestName());
-	    	System.out.println(message);
+
+			driver = createiOSDriver(isLocal);
 		}
+
 	}
 	
 	/**
 	 * Create Android driver
 	 * @return	Return Android Driver Object
 	 */
-	public AppiumDriver<MobileElement> createAndroidDriver() {
-		
-		// Get APK path
-		File file = new File("./src/main/resources/app/file/"+Variables.apkName+".apk");
-		
-		// Add capabilities
-		capabilities.setCapability(MobileCapabilityType.APP, file.getAbsolutePath());
-		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, Variables.deviceName);
-		capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, Variables.platformName);
-		
-		// Create Android Driver
-		driver = new AndroidDriver<MobileElement>(createServerURL(), capabilities);
-		
+	public AppiumDriver<MobileElement> createAndroidDriver(Boolean isLocal) {
+
+		if (isLocal) {
+
+			// Get APK path
+			File file = new File("./src/main/resources/app/file/" + Variables.apkName + ".apk");
+
+			// Add capabilities
+			capabilities.setCapability(MobileCapabilityType.APP, file.getAbsolutePath());
+			capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, Variables.deviceName);
+			capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, Variables.platformName);
+
+			// Create Android Driver
+			driver = new AndroidDriver<MobileElement>(createServerURL(), capabilities);
+
+		} else {
+
+			// Set user info for Saucelabs
+			if (System.getenv("SAUCE_USER_NAME") == null)
+				sauceUsername = Variables.sauceUsername;
+			else
+				sauceUsername = System.getenv("SAUCE_USER_NAME");
+
+			if (System.getenv("SAUCE_API_KEY") == null)
+				sauceAccessKey = Variables.sauceAccessKey;
+			else
+				sauceAccessKey = System.getenv("SAUCE_API_KEY");
+
+			if (System.getenv("Android Device Name") == null)
+				androidDeviceName = Variables.deviceName;
+			else
+				androidDeviceName = System.getenv("Android Device Name");
+
+			if (System.getenv("Android Device Platform Version") == null)
+				androidPlatformVersion = Variables.version;
+			else
+				androidPlatformVersion = System.getenv("Android Device Platform Version");
+
+			// Create Saucelabs authenticator and REST client
+			this.sauceAuth = new SauceOnDemandAuthentication(sauceUsername, sauceAccessKey);
+			this.sauceClient = new SauceREST(sauceUsername, sauceAccessKey);
+			
+			capabilities = DesiredCapabilities.android();
+
+			capabilities.setCapability("deviceName", androidDeviceName);
+			capabilities.setCapability("deviceOrientation", "portrait");
+			capabilities.setCapability("app", "sauce-storage:CareAndroid.zip");
+			capabilities.setCapability("browserName", "");
+			capabilities.setCapability("platformVersion", androidPlatformVersion);
+			capabilities.setCapability("platformName", "Android");
+			capabilities.setCapability("appiumVersion", "1.5.3");
+
+			// Add the environment tag
+			tags.add(this.environment);
+			// Add the device name
+			tags.add(this.androidDeviceName);
+			// Add the test area
+			tags.add(this.testArea);
+			// Add version name
+			tags.add(this.androidPlatformVersion);
+
+			// Set the test name, and the tags
+			capabilities.setCapability("name", testName);
+			capabilities.setCapability("tags", tags);
+
+			try {
+
+				// Set the driver
+				driver = new AndroidDriver<MobileElement>(
+						new URL("http://" + this.getAuthentication().getUsername() + ":"
+								+ this.getAuthentication().getAccessKey() + "@ondemand.saucelabs.com:80/wd/hub"),
+						capabilities);
+
+			} catch (MalformedURLException e) {
+
+				e.printStackTrace();
+			}
+
+			// Get the session ID from Saucelabs, and set the local value
+			setSessionId(((RemoteWebDriver) getDriver()).getSessionId().toString());
+
+			// Print the Session ID
+			String message = String.format("SauceOnDemandSessionID=%1$s job-name=%2$s",
+					((RemoteWebDriver) getDriver()).getSessionId().toString(), this.getTestName());
+			System.out.println(message);
+
+		}
+
 		// Return driver object
 		return driver;
 	}
@@ -208,22 +227,86 @@ public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDema
 	 * Create IOS Driver
 	 * @return Return driver object
 	 */
-	public AppiumDriver<MobileElement> createiOSDriver(){
-		
-		// Get APP file path
-		File file = new File("./src/main/resources/app/file/"+Variables.appName+".app");
-		
-		// Add capabilities
-		capabilities.setCapability(MobileCapabilityType.APP, file.getAbsolutePath());
-		capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "iOS");
-		capabilities.setCapability(MobileCapabilityType.VERSION, Variables.iOS_Vesion);
-		capabilities.setCapability(MobileCapabilityType.PLATFORM, "Mac");
-		capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, Variables.iOS_deviceName);
-		capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS");
-		
-		// Create Android Driver
-		driver = new IOSDriver<MobileElement>(createServerURL(), capabilities);
-		
+	public AppiumDriver<MobileElement> createiOSDriver(Boolean isLocal) {
+
+		if (isLocal) {
+
+			// Get APP file path
+			File file = new File("./src/main/resources/app/file/" + Variables.appName + ".app");
+
+			// Add capabilities
+			capabilities.setCapability(MobileCapabilityType.APP, file.getAbsolutePath());
+			capabilities.setCapability(MobileCapabilityType.BROWSER_NAME, "iOS");
+			capabilities.setCapability(MobileCapabilityType.VERSION, Variables.iOS_Vesion);
+			capabilities.setCapability(MobileCapabilityType.PLATFORM, "Mac");
+			capabilities.setCapability(MobileCapabilityType.DEVICE_NAME, Variables.iOS_deviceName);
+			capabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "iOS");
+
+			// Create Android Driver
+			driver = new IOSDriver<MobileElement>(createServerURL(), capabilities);
+
+		} else {
+
+			// Set user info for Saucelabs
+			if (System.getenv("SAUCE_USER_NAME") == null)
+				sauceUsername = Variables.sauceUsername;
+			else
+				sauceUsername = System.getenv("SAUCE_USER_NAME");
+
+			if (System.getenv("SAUCE_API_KEY") == null)
+				sauceAccessKey = Variables.sauceAccessKey;
+			else
+				sauceAccessKey = System.getenv("SAUCE_API_KEY");
+
+			if (System.getenv("IOS Device Name") == null)
+				iOSDeviceName = Variables.iOS_deviceName;
+			else
+				iOSDeviceName = System.getenv("IOS Device Name");
+
+			if (System.getenv("IOS Device Platform Version") == null)
+				iOSPlatformVersion = Variables.iOS_Vesion;
+			else
+				iOSPlatformVersion = System.getenv("IOS Device Platform Version");
+
+			// Create Saucelabs authenticator and REST client
+			this.sauceAuth = new SauceOnDemandAuthentication(sauceUsername, sauceAccessKey);
+			this.sauceClient = new SauceREST(sauceUsername, sauceAccessKey);
+
+			capabilities.setCapability("platformName", "iOS");
+			capabilities.setCapability("deviceName", iOSDeviceName);
+			capabilities.setCapability("platformVersion", iOSPlatformVersion);
+			capabilities.setCapability("app", "sauce-storage:Care.zip");
+			capabilities.setCapability("browserName", "");
+			capabilities.setCapability("deviceOrientation", "portrait");
+			capabilities.setCapability("appiumVersion", "1.5.3");
+			capabilities.setCapability("platform", "OS X 10.11");
+
+			// Add the environment tag
+			tags.add(this.environment);
+			// Add the device type
+			// tags.add(this.deviceType);
+			// Add the test area
+			tags.add(this.testArea);
+
+			// Set the test name, and the tags
+			capabilities.setCapability("name", testName);
+			capabilities.setCapability("tags", tags);
+
+			try {
+
+				// Set the driver
+				driver = new IOSDriver<MobileElement>(
+						new URL("http://" + this.getAuthentication().getUsername() + ":"
+								+ this.getAuthentication().getAccessKey() + "@ondemand.saucelabs.com:80/wd/hub"),
+						capabilities);
+
+			} catch (MalformedURLException e) {
+
+				e.printStackTrace();
+			}
+
+		}
+
 		// Return iOS driver
 		return driver;
 	}
@@ -376,5 +459,21 @@ public class MobileDriver implements SauceOnDemandSessionIdProvider, SauceOnDema
 
 	public void setiOSPlatformVersion(String iOSPlatformVersion) {
 		this.iOSPlatformVersion = iOSPlatformVersion;
+	}
+
+	public String getAndroidDeviceName() {
+		return androidDeviceName;
+	}
+
+	public void setAndroidDeviceName(String androidDeviceName) {
+		this.androidDeviceName = androidDeviceName;
+	}
+
+	public String getAndroidPlatformVersion() {
+		return androidPlatformVersion;
+	}
+
+	public void setAndroidPlatformVersion(String androidPlatformVersion) {
+		this.androidPlatformVersion = androidPlatformVersion;
 	}
 }

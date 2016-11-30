@@ -14,7 +14,7 @@ public class AndroidEnrollmentTestScripts extends BaseTest {
 
 	@BeforeMethod
 	public void initializeDriver(ITestContext context, Method m) {
-		super.initializeDriver(context, m, true, true);
+		super.initializeDriver(context, m, false, true);
 	}
 
 	@Test

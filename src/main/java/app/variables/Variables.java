@@ -21,7 +21,8 @@ public class Variables {
 	 * Default Configurations
 	 ************************/
 	
-	public static final String deviceName 		= "Samsung S6";
+	public static final String deviceName 		= "Android GoogleAPI Emulator";
+	public static final String version	 		= "5.0";
 	public static final String platformName 	= "Android";
 	public static final String apkName			= "base";
 	public static final String appName			= "Care";
