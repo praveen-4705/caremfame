@@ -1,6 +1,6 @@
-<h2>Mobile Application Framework for both Android and iOS</h2>
+Mobile Application Framework for both Android and iOS
 
-<h3>Features</h3>
+Features
 
 - Using Appium framework
 - Will support both Android and IOS
